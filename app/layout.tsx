@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Barlow, Instrument_Serif, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Analytics } from "@vercel/analytics/next";
 
 /** Body + UI text — Barlow, multiple weights */
 const barlow = Barlow({
@@ -67,6 +68,7 @@ export default function RootLayout({
             {children}
           </div>
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
