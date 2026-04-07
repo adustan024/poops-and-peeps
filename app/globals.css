@@ -1,26 +1,294 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* ============================================================
+   DESIGN TOKENS — Single source of truth.
+   Update here to cascade globally. Maps to Figma variables.
+   ============================================================ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* ---- Brand Gradients ---- */
+  --color-brand-purple: #7C3AED;
+  --color-brand-pink:   #EC4899;
+  --color-brand-teal:   #0D9488;
+  --color-brand-amber:  #F59E0B;
+  --color-brand-blue:   #3B82F6;
+  --color-brand-green:  #22C55E;
+
+  /* ---- Surfaces (dark-first) ---- */
+  --color-surface-950:  #06060A;
+  --color-surface-900:  #0A0A0F;
+  --color-surface-800:  #13131A;
+  --color-surface-700:  #1C1C26;
+  --color-surface-600:  #252533;
+  --color-surface-500:  #323244;
+  --color-surface-400:  #4B4B66;
+  --color-surface-300:  #6B6B88;
+
+  /* ---- Text ---- */
+  --color-text-primary:   #F0F0FF;
+  --color-text-secondary: #9999BB;
+  --color-text-muted:     #8888AA;
+  --color-text-inverse:   #0A0A0F;
+
+  /* ---- Per-Stat Colors ---- */
+  --color-stat-wet:     #3B82F6;  /* blue — wet diaper */
+  --color-stat-poop:    #92400E;  /* brown (overridden by color choice inline) */
+  --color-stat-feeding: #22C55E;  /* green */
+  --color-stat-spitup:  #3B82F6;  /* blue — spit-up */
+  --color-stat-sleep:   #6366F1;  /* indigo */
+  --color-stat-tummy:   #0D9488;  /* teal */
+  --color-stat-weight:  #EC4899;  /* pink */
+  --color-stat-photo:   #7C3AED;  /* purple */
+
+  /* ---- Poop Color Choices ---- */
+  --color-poop-yellow: #FBBF24;
+  --color-poop-green:  #16A34A;
+  --color-poop-brown:  #92400E;
+  --color-poop-black:  #1C1917;
+
+  /* ---- Typography — Font Families ---- */
+  --font-sans:    var(--font-barlow), "Barlow", ui-sans-serif, system-ui;
+  --font-display: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
+  --font-mono:    var(--font-mono), ui-monospace, monospace;
+
+  /* ---- Typography — Font Sizes ---- */
+  --text-2xs: 0.625rem;  /* 10px */
+  --text-xs:  0.75rem;   /* 12px */
+  --text-sm:  0.875rem;  /* 14px */
+  --text-md:  1rem;      /* 16px — Body Default (Barlow Regular, 24px line in Figma) */
+  --text-lg:  1.125rem;  /* 18px */
+  --text-xl:  1.25rem;   /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 2rem;  /* 32px */
+  --text-display-mark: 4rem;   /* 64px — landing mark (Figma OB) */
+  --text-display-hero: 6rem;   /* 96px — “Poops & Peeps” display (Instrument Serif Italic) */
+  --text-page-headline: 2.5rem; /* 40px — internal screen titles (login, onboarding, …) */
+
+  /* ---- Typography — Font Weights ---- */
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+
+  /* ---- Typography — Line Heights ---- */
+  --leading-tight:   1.2;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.625;
+  --leading-display-tight: 1;
+  --leading-body-md: 1.5rem;
+  --leading-page-headline: 3rem; /* 48px @ 40px size */
+
+  /* ---- Layout (app column + aligned overlays on desktop) ---- */
+  --layout-content-max-width: 430px;
+
+  /* ---- Radius ---- */
+  --radius-xs:    0.25rem;
+  --radius-sm:    0.375rem;   /* cell radius */
+  --radius-md:    0.75rem;
+  --radius-card:  1rem;
+  --radius-sheet: 1.5rem;
+  --radius-full:  9999px;
+
+  /* ---- Shadows ---- */
+  --shadow-card:         0 4px 24px rgba(0, 0, 0, 0.5);
+  --shadow-card-hover:   0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-glow-purple:  0 0 24px rgba(124, 58, 237, 0.35);
+  --shadow-glow-pink:    0 0 24px rgba(236, 72, 153, 0.35);
+  --shadow-glow-teal:    0 0 24px rgba(13, 148, 136, 0.35);
+
+  /* ---- 8px Grid Spacing Scale ---- */
+  /* Named by pixel value. Base unit: 4px. Layout uses multiples of 8px. */
+  --space-4:  0.25rem;   /*  4px — hairline gaps, icon padding */
+  --space-8:  0.5rem;    /*  8px — tight internal spacing */
+  --space-12: 0.75rem;   /* 12px — compact padding */
+  --space-16: 1rem;      /* 16px — standard padding */
+  --space-20: 1.25rem;   /* 20px */
+  --space-24: 1.5rem;    /* 24px — section gaps */
+  --space-32: 2rem;      /* 32px — large gaps */
+  --space-40: 2.5rem;    /* 40px */
+  --space-48: 3rem;      /* 48px — page section spacing */
+  --space-64: 4rem;      /* 64px */
+  --space-80: 5rem;      /* 80px */
+  --space-96: 6rem;      /* 96px */
+
+  /* ---- Safe Area Helpers ---- */
+  --spacing-safe-bottom: env(safe-area-inset-bottom, 16px);
+  --spacing-safe-top:    env(safe-area-inset-top, 0px);
+
+  /* ---- Letter spacing (Figma OB) ---- */
+  --tracking-display-hero: 0.02em;
+  --tracking-display-mark: 0.02em;
+  --tracking-page-headline: 0.02em;
+  --tracking-body: -0.005em;
+
+  /* ---- CTAs (Figma ~99° gradient) ---- */
+  --gradient-cta-primary: linear-gradient(
+    99.0334deg,
+    var(--color-brand-purple) 0%,
+    var(--color-brand-pink) 100%
+  );
+  --gradient-cta-secondary: linear-gradient(
+    99.0334deg,
+    var(--color-surface-800) 0%,
+    var(--color-surface-600) 100%
+  );
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+:root {
+  color-scheme: dark;
+}
+
+html {
+  /* Always dark — this app is optimized for night use */
+  background-color: #0A0A0F;
+  /* Prevent iOS double-tap zoom on fast tapping */
+  touch-action: manipulation;
+  /* Prevent overscroll bounce on iOS */
+  overscroll-behavior: none;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-surface-900);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-body-md);
+  letter-spacing: var(--tracking-body);
+  font-weight: var(--font-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-bottom: env(safe-area-inset-bottom);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ============================================================
+   UTILITY: Tap highlight suppression (mobile)
+   ============================================================ */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pt-page-header {
+  padding-top: calc(env(safe-area-inset-top, 0px) + 1.5rem);
+}
+
+/* ============================================================
+   UTILITY: Gradient text helper
+   ============================================================ */
+.gradient-text-purple-pink {
+  background: linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-pink));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-teal-blue {
+  background: linear-gradient(135deg, var(--color-brand-teal), var(--color-brand-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================
+   UTILITY: Card gradient backgrounds
+   ============================================================ */
+.card-gradient {
+  background: linear-gradient(135deg, var(--color-surface-700), var(--color-surface-800));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   UTILITY: Flip card 3D perspective
+   ============================================================ */
+.flip-card-container {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  transform-style: preserve-3d;
+  position: relative;
+}
+
+.flip-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+.landing-ob-bg {
+  background-color: var(--color-surface-900);
+  background-image:
+    radial-gradient(
+      ellipse 140% 100% at 100% 88%,
+      rgba(236, 72, 153, 0.07),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 130% 90% at 100% 52%,
+      rgba(59, 130, 246, 0.07),
+      transparent 48%
+    ),
+    radial-gradient(
+      ellipse 120% 120% at -5% -5%,
+      rgba(124, 58, 237, 0.12),
+      transparent 55%
+    );
+}
+
+.btn-cta-primary {
+  background: var(--gradient-cta-primary);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.btn-cta-secondary {
+  background: var(--gradient-cta-secondary);
+  border: 1px solid var(--color-surface-500);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.type-page-headline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-page-headline);
+  line-height: var(--leading-page-headline);
+  letter-spacing: var(--tracking-page-headline);
+  color: var(--color-text-primary);
+}
+
+.type-sheet-title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: var(--font-weight-regular);
+  font-size: var(--text-3xl);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-page-headline);
+  color: var(--color-text-primary);
+}
+
+/* Helper / explanation line above sheet controls — consistent gap to content */
+.sheet-lede {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  display: block;
+  margin-block-end: 2rem;
 }
