@@ -6,6 +6,7 @@ import { format, subDays, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getEntriesForRange } from "@/lib/supabase/queries/entries";
 import { useProfileStore } from "@/lib/store/profileStore";
+import { useAppNow } from "@/lib/appTimeContext";
 import type { FeedingValue } from "@/types/stats";
 
 const BG_COLOR   = "#0A0A0F";
@@ -173,8 +174,9 @@ interface Props {
 }
 
 export function FeedingChart({ babyId, period, animKey }: Props) {
-  const today = format(new Date(), "yyyy-MM-dd");
-  const start = format(subDays(new Date(), 27), "yyyy-MM-dd");
+  const appNow = useAppNow();
+  const today = format(appNow, "yyyy-MM-dd");
+  const start = format(subDays(appNow, 27), "yyyy-MM-dd");
   const units = useProfileStore((s) => s.profile?.units ?? "imperial");
 
   const { data: entries = [], isLoading } = useQuery({
@@ -200,7 +202,7 @@ export function FeedingChart({ babyId, period, animKey }: Props) {
 
     if (period === "week") {
       const dates = Array.from({ length: 7 }, (_, i) =>
-        format(subDays(new Date(), 6 - i), "yyyy-MM-dd")
+        format(subDays(appNow, 6 - i), "yyyy-MM-dd")
       );
 
       const maxCount  = Math.max(1, ...dates.map((d) => countMap[d] ?? 0));
@@ -230,7 +232,7 @@ export function FeedingChart({ babyId, period, animKey }: Props) {
     const buckets = Array.from({ length: 4 }, (_, w) => {
       const ago   = (3 - w) * 7;
       const dates = Array.from({ length: 7 }, (_, d) =>
-        format(subDays(new Date(), ago + d), "yyyy-MM-dd")
+        format(subDays(appNow, ago + d), "yyyy-MM-dd")
       ).filter((d) => d >= start && d <= today);
 
       const totalCount = dates.reduce((s, d) => s + (countMap[d] ?? 0), 0);
@@ -245,7 +247,7 @@ export function FeedingChart({ babyId, period, animKey }: Props) {
         : 0;
 
       return {
-        dateLabel:     `${format(subDays(new Date(), ago + 6), "M/d")} avg.`,
+        dateLabel:     `${format(subDays(appNow, ago + 6), "M/d")} avg.`,
         avgCount,
         avgDailyTotal,
         totalCount,
@@ -276,7 +278,7 @@ export function FeedingChart({ babyId, period, animKey }: Props) {
           hasAnyAmounts && b.avgDailyTotal > 0 ? mlToDisplay(b.avgDailyTotal, units) : null,
       };
     });
-  }, [entries, period, start, today, units]);
+  }, [entries, period, start, today, units, appNow]);
 
   if (isLoading) {
     return (

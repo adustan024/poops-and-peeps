@@ -8,6 +8,7 @@ import { CardFaceFront } from "@/components/shared/CardFaceFront";
 import { CardFaceBack } from "@/components/shared/CardFaceBack";
 import { getEntriesForRange } from "@/lib/supabase/queries/entries";
 import { dateToSlot } from "@/types/stats";
+import { useAppNow } from "@/lib/appTimeContext";
 import type { TrackingEntry } from "@/types/stats";
 
 const C  = "#6366F1";
@@ -153,18 +154,14 @@ interface Props {
 }
 
 export function SleepStripCard({ babyId, isExpanded = false, onToggleExpand: _onToggleExpand }: Props) {
+  const appNow = useAppNow();
+  const currentSlot = dateToSlot(appNow);
   const [isFlipped,   setIsFlipped]   = useState(false);
   const [period,      setPeriod]      = useState<"week" | "month">("week");
   const [backAnimKey, setBackAnimKey] = useState(0);
-  const [currentSlot, setCurrentSlot] = useState(() => dateToSlot(new Date()));
 
-  const today     = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
-  const startDate = useMemo(() => format(subDays(new Date(), 27), "yyyy-MM-dd"), []);
-
-  useEffect(() => {
-    const id = setInterval(() => setCurrentSlot(dateToSlot(new Date())), 60_000);
-    return () => clearInterval(id);
-  }, []);
+  const today     = format(appNow, "yyyy-MM-dd");
+  const startDate = format(subDays(appNow, 27), "yyyy-MM-dd");
 
   useEffect(() => {
     if (isFlipped) setBackAnimKey((k) => k + 1);
@@ -190,16 +187,16 @@ export function SleepStripCard({ babyId, isExpanded = false, onToggleExpand: _on
   // Back — 7-day rows with per-day duration
   const weekRows = useMemo(() =>
     Array.from({ length: 7 }, (_, i) => {
-      const d = format(subDays(new Date(), 6 - i), "yyyy-MM-dd");
+      const d = format(subDays(appNow, 6 - i), "yyyy-MM-dd");
       const occ = buildOccupied(entries, d);
       const slots = countSlots(occ);
       return {
-        label:    format(subDays(new Date(), 6 - i), "M/d"),
+        label:    format(subDays(appNow, 6 - i), "M/d"),
         gradient: solidGrad(occ, d === today ? currentSlot : -1),
         stat:     slotsToHM(slots),
       };
     }),
-    [entries, today, currentSlot]
+    [entries, today, currentSlot, appNow]
   );
 
   // Back — 4-week rows with smart average (only days with logged sleep)
@@ -207,7 +204,7 @@ export function SleepStripCard({ babyId, isExpanded = false, onToggleExpand: _on
     Array.from({ length: 4 }, (_, wi) => {
       const ago = (3 - wi) * 7;
       const dates = Array.from({ length: 7 }, (_, d) =>
-        format(subDays(new Date(), ago + d), "yyyy-MM-dd")
+        format(subDays(appNow, ago + d), "yyyy-MM-dd")
       ).filter((d) => d >= startDate && d <= today);
 
       const slotCounts = dates.map((d) => countSlots(buildOccupied(entries, d)));
@@ -217,12 +214,12 @@ export function SleepStripCard({ babyId, isExpanded = false, onToggleExpand: _on
         : 0;
 
       return {
-        label:    format(subDays(new Date(), ago + 6), "M/d"),
+        label:    format(subDays(appNow, ago + 6), "M/d"),
         gradient: freqGrad(buildFrequency(entries, dates)),
         stat:     daysWithData.length > 0 ? `${slotsToHM(avgSlots)} avg` : "—",
       };
     }),
-    [entries, startDate, today]
+    [entries, startDate, today, appNow]
   );
 
   const rows = period === "week" ? weekRows : monthRows;

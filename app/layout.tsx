@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { cookies } from "next/headers";
 import { Barlow, Instrument_Serif, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -49,18 +50,21 @@ export const viewport: Viewport = {
   themeColor: "#0A0A0F",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const initialDemoAppNowIso = cookieStore.get("demo_app_now")?.value ?? null;
+
   return (
     <html
       lang="en"
       className={`dark ${barlow.variable} ${instrumentSerif.variable} ${geistMono.variable}`}
     >
       <body className="bg-[#0A0A0F] text-[#F0F0FF] antialiased min-h-dvh overflow-x-hidden">
-        <Providers>
+        <Providers initialDemoAppNowIso={initialDemoAppNowIso}>
           <div
             className="relative mx-auto w-full min-h-dvh"
             style={{ maxWidth: "var(--layout-content-max-width)" }}

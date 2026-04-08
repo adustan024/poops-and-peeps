@@ -15,6 +15,7 @@ import { statColor, statTextColor } from "@/styles/tokens";
 import { formatWeight } from "@/types/profile";
 import { getDailyRecordsForRange } from "@/lib/supabase/queries/daily-records";
 import type { ChartPeriod } from "@/types/ui";
+import { useAppNow } from "@/lib/appTimeContext";
 
 // ─── WHO weight-for-age (combined sex approximation, grams) ──────────────────
 
@@ -89,12 +90,13 @@ interface Props {
 }
 
 export function WeightChart({ babyId }: Props) {
+  const appNow    = useAppNow();
   const units     = useProfileStore((s) => s.profile?.units ?? "imperial");
   const baby      = useProfileStore((s) => s.baby);
   const color     = statColor.weight;
   const textColor = statTextColor.weight;
 
-  const today     = new Date();
+  const today     = appNow;
   const birthDate = baby?.birth_date ? parseISO(baby.birth_date) : subDays(today, 90);
   const totalDays = Math.max(1, differenceInDays(today, birthDate));
 

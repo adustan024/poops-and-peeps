@@ -6,6 +6,7 @@ import { staggerItem } from "@/styles/animations";
 import { useRouter } from "next/navigation";
 import { BabyAvatarRingSurface } from "@/components/shared/BabyAvatarRingSurface";
 import { getBabyAvatarEmoji } from "@/lib/babyEmoji";
+import { useAppNow } from "@/lib/appTimeContext";
 
 interface Props {
   babyName: string;
@@ -15,9 +16,8 @@ interface Props {
   avatarRingStyle?: number | null;
 }
 
-function getAgeLabel(birthDate: string): string {
+function getAgeLabel(birthDate: string, now: Date): string {
   const birth = parseISO(birthDate);
-  const now   = new Date();
   const days   = differenceInDays(now, birth);
   const weeks  = differenceInWeeks(now, birth);
   const months = differenceInMonths(now, birth);
@@ -43,7 +43,8 @@ export function BabyHeader({
   avatarRingStyle,
 }: Props) {
   const router = useRouter();
-  const ageLabel = getAgeLabel(birthDate);
+  const appNow = useAppNow();
+  const ageLabel = getAgeLabel(birthDate, appNow);
 
   return (
     <motion.div

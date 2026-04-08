@@ -9,6 +9,7 @@ const PUBLIC_PATHS = [
   "/design-system",
   "/demo",
   "/api/demo-session",
+  "/api/clear-demo-time",
 ];
 const AUTH_PATHS   = ["/home", "/day", "/settings"];
 

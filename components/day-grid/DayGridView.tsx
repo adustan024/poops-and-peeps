@@ -24,6 +24,7 @@ import { DeleteConfirmModal } from "@/components/shared/DeleteConfirmModal";
 import type { TrackingEntry, StatType } from "@/types/stats";
 import type { PoopColor } from "@/types/stats";
 import { dateToSlot, slotToTimeString } from "@/types/stats";
+import { useAppNow } from "@/lib/appTimeContext";
 
 const TOTAL_SLOTS = 96;
 
@@ -49,6 +50,7 @@ type SheetState =
 type DeleteState = { entryId: string; statType: StatType; slot: number } | null;
 
 export function DayGridView({ date }: Props) {
+  const appNow = useAppNow();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const currentSlot = useCurrentDaySlot(date);
@@ -124,16 +126,16 @@ export function DayGridView({ date }: Props) {
   });
 
   useEffect(() => {
-    const today = format(new Date(), "yyyy-MM-dd");
+    const today = format(appNow, "yyyy-MM-dd");
     let targetSlot: number;
     if (date === today) {
-      targetSlot = Math.max(dateToSlot(new Date()) - 2, 0);
+      targetSlot = Math.max(dateToSlot(appNow) - 2, 0);
     } else {
       targetSlot = 32; // 8:00 AM
     }
     virtualizer.scrollToIndex(targetSlot, { align: "start" });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date]);
+  }, [date, appNow]);
 
   const handleCellTap = useCallback(
     (slot: number, statType: StatType, existing: TrackingEntry | null) => {

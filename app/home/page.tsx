@@ -12,13 +12,15 @@ import { useUIStore } from "@/lib/store/uiStore";
 import { BabyHeader } from "@/components/home/BabyHeader";
 import { CalendarMonthView } from "@/components/calendar/CalendarMonthView";
 import { StatSummaryRow } from "@/components/home/StatSummaryRow";
+import { useAppNow } from "@/lib/appTimeContext";
 
 export default function HomePage() {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { profile, baby, trackedStats, isLoading: profileLoading } = useProfile();
   const { calendarMonth } = useUIStore();
-  const today = format(new Date(), "yyyy-MM-dd");
+  const appNow = useAppNow();
+  const today = format(appNow, "yyyy-MM-dd");
 
   const { data: monthSummary } = useMonthSummary(
     baby?.id,
@@ -28,11 +30,10 @@ export default function HomePage() {
 
   // Always fetch the current month so stat cards show today's values
   // regardless of which calendar month the user is browsing
-  const todayDate = new Date();
   const { data: currentMonthSummary } = useMonthSummary(
     baby?.id,
-    todayDate.getFullYear(),
-    todayDate.getMonth() + 1
+    appNow.getFullYear(),
+    appNow.getMonth() + 1
   );
 
   const todaySummary = currentMonthSummary?.days.find((d) => d.date === today);

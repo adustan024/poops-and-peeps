@@ -46,5 +46,24 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const demoRaw = process.env.DEMO_APP_NOW_ISO?.trim();
+  if (demoRaw) {
+    const d = new Date(demoRaw);
+    if (!Number.isNaN(d.getTime())) {
+      response.cookies.set("demo_app_now", d.toISOString(), {
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+      });
+    }
+  } else {
+    response.cookies.set("demo_app_now", "", {
+      path: "/",
+      maxAge: 0,
+      sameSite: "lax",
+    });
+  }
+
   return response;
 }

@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { AppTimeProvider } from "@/lib/appTimeContext";
 import { useAuthListener } from "@/lib/hooks/useAuth";
 
 function AuthListenerInner({ children }: { children: React.ReactNode }) {
@@ -9,7 +10,13 @@ function AuthListenerInner({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialDemoAppNowIso,
+}: {
+  children: React.ReactNode;
+  initialDemoAppNowIso: string | null;
+}) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -24,7 +31,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthListenerInner>{children}</AuthListenerInner>
+      <AppTimeProvider initialDemoAppNowIso={initialDemoAppNowIso}>
+        <AuthListenerInner>{children}</AuthListenerInner>
+      </AppTimeProvider>
     </QueryClientProvider>
   );
 }

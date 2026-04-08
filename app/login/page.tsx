@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { useClearDemoAppTime } from "@/lib/appTimeContext";
 import { ScreenTitleStack } from "@/components/shared/ScreenTitleStack";
 
 type View = "login" | "forgot" | "forgot-sent";
 
 export default function LoginPage() {
+  const clearDemoAppTime = useClearDemoAppTime();
   const router = useRouter();
   const [view, setView] = useState<View>("login");
 
@@ -33,6 +35,7 @@ export default function LoginPage() {
       return;
     }
 
+    await clearDemoAppTime();
     router.replace("/home");
   }
 

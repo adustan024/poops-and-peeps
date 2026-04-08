@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, subDays, parseISO } from "date-fns";
 import { getEntriesForRange } from "@/lib/supabase/queries/entries";
+import { useAppNow } from "@/lib/appTimeContext";
 
 const STAT_TYPE = "wet_diaper" as const;
 const BAR_H     = 4;
@@ -50,9 +51,10 @@ interface Props {
 }
 
 export function WetDiaperChart({ babyId, period, textColor }: Props) {
-  const today = format(new Date(), "yyyy-MM-dd");
+  const appNow = useAppNow();
+  const today = format(appNow, "yyyy-MM-dd");
   const days  = period === "week" ? 7 : 30;
-  const start = format(subDays(new Date(), days - 1), "yyyy-MM-dd");
+  const start = format(subDays(appNow, days - 1), "yyyy-MM-dd");
 
   const { data: entries = [], isLoading } = useQuery({
     queryKey: ["wetDiaperChart", babyId, period],
@@ -69,7 +71,7 @@ export function WetDiaperChart({ babyId, period, textColor }: Props) {
 
     if (period === "week") {
       return Array.from({ length: 7 }, (_, i) => {
-        const date  = format(subDays(new Date(), 6 - i), "yyyy-MM-dd");
+        const date  = format(subDays(appNow, 6 - i), "yyyy-MM-dd");
         const count = countMap[date] ?? 0;
         return {
           label:   format(parseISO(date), "M/d"),
@@ -83,19 +85,19 @@ export function WetDiaperChart({ babyId, period, textColor }: Props) {
     return Array.from({ length: 4 }, (_, w) => {
       const ago    = (3 - w) * 7;
       const dates  = Array.from({ length: 7 }, (_, d) =>
-        format(subDays(new Date(), ago + d), "yyyy-MM-dd")
+        format(subDays(appNow, ago + d), "yyyy-MM-dd")
       ).filter((d) => d >= start && d <= today);
       const logged = dates.map((d) => countMap[d] ?? 0).filter((c) => c > 0);
       const avg    = logged.length > 0
         ? Math.round(logged.reduce((a, b) => a + b, 0) / logged.length)
         : 0;
       return {
-        label:   `${format(subDays(new Date(), ago + 6), "M/d")} avg.`,
+        label:   `${format(subDays(appNow, ago + 6), "M/d")} avg.`,
         count:   avg,
         isEmpty: avg === 0,
       };
     });
-  }, [entries, period, start, today]);
+  }, [entries, period, start, today, appNow]);
 
   if (isLoading) {
     return (

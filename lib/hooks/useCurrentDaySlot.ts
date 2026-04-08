@@ -1,27 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { dateToSlot } from "@/types/stats";
-
-function todayYmd(): string {
-  return format(new Date(), "yyyy-MM-dd");
-}
+import { useAppNow } from "@/lib/appTimeContext";
 
 /** Live-updating current 15m slot index when `date` is today; otherwise `-1`. */
 export function useCurrentDaySlot(date: string): number {
-  const isToday = date === todayYmd();
-  const [slot, setSlot] = useState(() => (isToday ? dateToSlot(new Date()) : -1));
+  const appNow = useAppNow();
+  const appNowRef = useRef(appNow);
+  appNowRef.current = appNow;
+  const todayYmd = format(appNow, "yyyy-MM-dd");
+  const isToday = date === todayYmd;
+  const [slot, setSlot] = useState(() =>
+    isToday ? dateToSlot(appNow) : -1
+  );
 
   useEffect(() => {
-    if (date !== todayYmd()) {
+    if (date !== format(appNowRef.current, "yyyy-MM-dd")) {
       setSlot(-1);
       return;
     }
-    setSlot(dateToSlot(new Date()));
-    const id = window.setInterval(() => setSlot(dateToSlot(new Date())), 60_000);
+    setSlot(dateToSlot(appNowRef.current));
+    const id = window.setInterval(
+      () => setSlot(dateToSlot(appNowRef.current)),
+      60_000
+    );
     return () => window.clearInterval(id);
-  }, [date]);
+  }, [date, todayYmd, appNow]);
 
   return slot;
 }

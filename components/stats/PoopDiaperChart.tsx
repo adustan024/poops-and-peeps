@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { format, subDays, parseISO } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { getEntriesForRange } from "@/lib/supabase/queries/entries";
+import { useAppNow } from "@/lib/appTimeContext";
 
 const STAT_TYPE = "poop_diaper" as const;
 const BG_COLOR  = "#0A0A0F";
@@ -98,9 +99,10 @@ interface Props {
 }
 
 export function PoopDiaperChart({ babyId, period, textColor, animKey }: Props) {
-  const today = format(new Date(), "yyyy-MM-dd");
+  const appNow = useAppNow();
+  const today = format(appNow, "yyyy-MM-dd");
   const days  = period === "week" ? 7 : 30;
-  const start = format(subDays(new Date(), days - 1), "yyyy-MM-dd");
+  const start = format(subDays(appNow, days - 1), "yyyy-MM-dd");
 
   const { data: entries = [], isLoading } = useQuery({
     queryKey:  ["poopChart", babyId, period],
@@ -117,7 +119,7 @@ export function PoopDiaperChart({ babyId, period, textColor, animKey }: Props) {
 
     if (period === "week") {
       return Array.from({ length: 7 }, (_, i) => {
-        const date = format(subDays(new Date(), 6 - i), "yyyy-MM-dd");
+        const date = format(subDays(appNow, 6 - i), "yyyy-MM-dd");
         return {
           label: format(parseISO(date), "M/d"),
           count: countMap[date] ?? 0,
@@ -129,15 +131,15 @@ export function PoopDiaperChart({ babyId, period, textColor, animKey }: Props) {
     // Average includes 0-poop days per spec
     return Array.from({ length: 4 }, (_, w) => {
       const ago   = (3 - w) * 7;
-      const label = `${format(subDays(new Date(), ago + 6), "M/d")} avg.`;
+      const label = `${format(subDays(appNow, ago + 6), "M/d")} avg.`;
       const dates = Array.from({ length: 7 }, (_, d) =>
-        format(subDays(new Date(), ago + d), "yyyy-MM-dd")
+        format(subDays(appNow, ago + d), "yyyy-MM-dd")
       ).filter((d) => d >= start && d <= today);
       const sum = dates.reduce((a, d) => a + (countMap[d] ?? 0), 0);
       const avg = dates.length > 0 ? sum / dates.length : 0;
       return { label, count: Math.round(avg) };
     });
-  }, [entries, period, start, today]);
+  }, [entries, period, start, today, appNow]);
 
   const barH   = period === "week" ? ROW_H_7D  : ROW_H_30D;
   const barGap = period === "week" ? BAR_GAP_7D : BAR_GAP_30D;

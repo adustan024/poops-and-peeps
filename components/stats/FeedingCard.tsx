@@ -9,6 +9,7 @@ import { CardFaceBack } from "@/components/shared/CardFaceBack";
 import { FeedingChart } from "./FeedingChart";
 import { statColor, statTextColor, statEmoji, statLabel } from "@/styles/tokens";
 import { getEntriesForDate } from "@/lib/supabase/queries/entries";
+import { useAppNow } from "@/lib/appTimeContext";
 import { useProfileStore } from "@/lib/store/profileStore";
 import type { FeedingValue } from "@/types/stats";
 
@@ -90,6 +91,7 @@ interface Props {
 }
 
 export function FeedingCard({ babyId, isExpanded = false, onToggleExpand: _onToggleExpand }: Props) {
+  const appNow = useAppNow();
   const [isFlipped,   setIsFlipped]   = useState(false);
   const [period,      setPeriod]      = useState<"week" | "month">("week");
   const [backAnimKey, setBackAnimKey] = useState(0);
@@ -102,7 +104,7 @@ export function FeedingCard({ babyId, isExpanded = false, onToggleExpand: _onTog
     setBackAnimKey((k) => k + 1);
   }, [period]);
 
-  const today = useMemo(() => format(new Date(), "yyyy-MM-dd"), []);
+  const today = format(appNow, "yyyy-MM-dd");
   const units = useProfileStore((s) => s.profile?.units ?? "imperial");
 
   const color     = statColor[STAT_TYPE];

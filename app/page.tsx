@@ -91,7 +91,9 @@ export default function LandingPage() {
           <motion.button
             type="button"
             whileTap={{ scale: 0.97 }}
-            onClick={() => router.push("/demo")}
+            onClick={() => {
+              window.location.assign("/demo");
+            }}
             className="w-full py-3 rounded-2xl text-md text-text-secondary hover:text-text-primary transition-colors"
           >
             Try Demo

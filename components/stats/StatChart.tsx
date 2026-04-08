@@ -16,6 +16,7 @@ import { format, subDays, parseISO } from "date-fns";
 import { statColor } from "@/styles/tokens";
 import type { StatType } from "@/types/stats";
 import type { ChartPeriod } from "@/types/ui";
+import { useAppNow } from "@/lib/appTimeContext";
 
 interface Props {
   babyId: string;
@@ -24,7 +25,7 @@ interface Props {
 }
 
 export function StatChart({ babyId, statType, period }: Props) {
-  const today = new Date();
+  const today = useAppNow();
   const days = period === "day" ? 1 : period === "week" ? 7 : 30;
   const startDate = format(subDays(today, days - 1), "yyyy-MM-dd");
   const endDate = format(today, "yyyy-MM-dd");

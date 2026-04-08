@@ -25,8 +25,10 @@ import type { UnitPreference } from "@/types/profile";
 import { isSupportedStatType } from "@/types/stats";
 import { formatBirthDateUs } from "@/types/profile";
 import { useQueryClient } from "@tanstack/react-query";
+import { useClearDemoAppTime } from "@/lib/appTimeContext";
 
 export default function SettingsPage() {
+  const clearDemoAppTime = useClearDemoAppTime();
   const router = useRouter();
   const { user } = useAuth();
   const { profile, baby, trackedStats, isLoading } = useProfile();
@@ -104,6 +106,7 @@ export default function SettingsPage() {
   }
 
   async function handleSignOut() {
+    await clearDemoAppTime();
     const supabase = createClient();
     await supabase.auth.signOut();
     clearAuth();

@@ -13,6 +13,7 @@ import {
   isAfter,
 } from "date-fns";
 import { useUIStore } from "@/lib/store/uiStore";
+import { useAppNow } from "@/lib/appTimeContext";
 import { useMonthSummary } from "@/lib/hooks/useMonthSummary";
 import { calendarMonthShellRadial } from "@/lib/statCardSurface";
 import { statColor } from "@/styles/tokens";
@@ -27,6 +28,7 @@ interface Props {
 
 export function CalendarMonthView({ babyId, birthDate }: Props) {
   const router = useRouter();
+  const appNow = useAppNow();
   const { calendarMonth, setCalendarMonth } = useUIStore();
   const { year, month } = calendarMonth;
 
@@ -37,7 +39,7 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
   const monthEnd = endOfMonth(monthDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
   const startOffset = getDay(monthStart);
-  const today = new Date();
+  const today = appNow;
   const birth = parseISO(birthDate);
 
   function navMonth(delta: number) {

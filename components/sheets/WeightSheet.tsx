@@ -8,6 +8,7 @@ import { lbsOzToGrams, kgToGrams, formatWeight } from "@/types/profile";
 import { SheetSaveButton } from "@/components/shared/SheetSaveButton";
 
 import { SheetDeleteButton } from "@/components/shared/SheetDeleteButton";
+import { useAppNow } from "@/lib/appTimeContext";
 
 interface Props {
   isOpen: boolean;
@@ -19,12 +20,11 @@ interface Props {
   onDelete?: () => void;
 }
 
-const today = () => format(new Date(), "yyyy-MM-dd");
-
 export function WeightSheet({ isOpen, onClose, initialWeightGrams, initialDate, isEditing = false, onSave, onDelete }: Props) {
+  const appNow = useAppNow();
   const units = useProfileStore((s) => s.profile?.units ?? "imperial");
 
-  const [date, setDate] = useState(initialDate ?? today());
+  const [date, setDate] = useState(initialDate ?? format(appNow, "yyyy-MM-dd"));
   const [lbs, setLbs] = useState(
     initialWeightGrams ? String(Math.floor((initialWeightGrams / 28.3495) / 16)) : ""
   );
@@ -37,7 +37,7 @@ export function WeightSheet({ isOpen, onClose, initialWeightGrams, initialDate, 
 
   useEffect(() => {
     if (!isOpen) return;
-    setDate(initialDate ?? today());
+    setDate(initialDate ?? format(appNow, "yyyy-MM-dd"));
     if (initialWeightGrams) {
       setLbs(String(Math.floor((initialWeightGrams / 28.3495) / 16)));
       setOz(((initialWeightGrams / 28.3495) % 16).toFixed(1));
@@ -47,7 +47,7 @@ export function WeightSheet({ isOpen, onClose, initialWeightGrams, initialDate, 
       setOz("");
       setKg("");
     }
-  }, [isOpen, initialWeightGrams, initialDate]);
+  }, [isOpen, initialWeightGrams, initialDate, appNow]);
 
   function handleSave() {
     let grams: number;
@@ -77,7 +77,7 @@ export function WeightSheet({ isOpen, onClose, initialWeightGrams, initialDate, 
           <input
             type="date"
             value={date}
-            max={today()}
+            max={format(appNow, "yyyy-MM-dd")}
             onChange={(e) => setDate(e.target.value)}
             className="w-full bg-[#1C1C26] border border-[#252533] rounded-xl px-4 py-3 text-base font-medium text-[#F0F0FF] focus:outline-none focus:border-[#EC4899]"
             style={{ colorScheme: "dark" }}
