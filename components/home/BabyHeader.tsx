@@ -50,7 +50,6 @@ export function BabyHeader({
       variants={staggerItem}
       className="flex items-center gap-4 px-5 pt-page-header pb-4"
     >
-      {/* Avatar / photo */}
       <BabyAvatarRingSurface
         ringIndex={avatarRingStyle ?? 0}
         innerClassName="w-14 h-14"
@@ -69,7 +68,6 @@ export function BabyHeader({
         )}
       </BabyAvatarRingSurface>
 
-      {/* Name + age */}
       <div className="flex-1">
         <h1 className="font-display italic leading-tight" style={{ fontSize: "var(--text-2xl)", color: "var(--color-text-primary)" }}>
           {babyName}
@@ -77,8 +75,8 @@ export function BabyHeader({
         <p className="text-sm text-[#9999BB]">{ageLabel}</p>
       </div>
 
-      {/* Settings icon */}
       <button
+        type="button"
         onClick={() => router.push("/settings")}
         className="w-10 h-10 flex items-center justify-center rounded-xl bg-[#1C1C26] text-[#9999BB]"
       >

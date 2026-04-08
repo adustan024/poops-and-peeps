@@ -109,7 +109,7 @@ export default function SettingsPage() {
     clearAuth();
     profileStore.clear();
     queryClient.clear();
-    router.replace("/onboarding");
+    router.replace("/");
   }
 
   if (isLoading) {

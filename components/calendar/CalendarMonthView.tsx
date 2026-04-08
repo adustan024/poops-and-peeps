@@ -36,7 +36,7 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
   const monthStart = startOfMonth(monthDate);
   const monthEnd = endOfMonth(monthDate);
   const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
-  const startOffset = getDay(monthStart); // 0=Sun
+  const startOffset = getDay(monthStart);
   const today = new Date();
   const birth = parseISO(birthDate);
 
@@ -52,7 +52,6 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
     router.push(`/day/${dateStr}`);
   }
 
-  // Build a lookup from the summary data
   const summaryMap = Object.fromEntries(
     (summary?.days ?? []).map((d) => [d.date, d])
   );
@@ -62,9 +61,9 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
       className="rounded-2xl overflow-hidden mx-4 border border-[#1C1C26]"
       style={{ background: calendarMonthShellRadial() }}
     >
-      {/* Month navigation header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#1C1C26]">
         <button
+          type="button"
           onClick={() => navMonth(-1)}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#1C1C26] text-[#9999BB] text-base"
         >
@@ -74,6 +73,7 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
           {format(monthDate, "MMMM yyyy")}
         </h2>
         <button
+          type="button"
           onClick={() => navMonth(1)}
           disabled={isAfter(new Date(year, month, 1), today)}
           className="w-9 h-9 flex items-center justify-center rounded-xl bg-[#1C1C26] text-[#9999BB] text-base disabled:opacity-30"
@@ -82,7 +82,6 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
         </button>
       </div>
 
-      {/* Day-of-week headers */}
       <div className="grid grid-cols-7">
         {DAY_HEADERS.map((d) => (
           <div key={d} className="py-2 text-center text-[10px] font-medium text-[#8888AA] uppercase">
@@ -91,9 +90,7 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
         ))}
       </div>
 
-      {/* Day cells */}
       <div className="grid grid-cols-7 gap-[2px] p-2">
-        {/* Offset blank cells */}
         {Array.from({ length: startOffset }).map((_, i) => (
           <div key={`blank-${i}`} />
         ))}
@@ -106,7 +103,6 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
           const daySummary = summaryMap[dateStr];
           const hasEntries = daySummary?.hasEntries ?? false;
 
-          // Top 3 stats with entries for dots
           const dotColors: string[] = hasEntries
             ? (Object.entries(daySummary?.counts ?? {}) as [StatType, number][])
                 .filter(([, c]) => c > 0)
@@ -117,6 +113,7 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
           return (
             <motion.button
               key={dateStr}
+              type="button"
               onClick={() => !isFuture && !isBeforeBirth && handleDayTap(dateStr)}
               whileTap={!isFuture && !isBeforeBirth ? { scale: 0.9 } : undefined}
               disabled={isFuture || isBeforeBirth}
@@ -138,7 +135,6 @@ export function CalendarMonthView({ babyId, birthDate }: Props) {
                 {format(day, "d")}
               </span>
 
-              {/* Stat indicator dots */}
               <div className="flex gap-[2px] h-[5px]">
                 {dotColors.map((color, i) => (
                   <div
